@@ -1,4 +1,4 @@
-const Find = () => {
+const Find = ({ className }: { className?: string }) => {
   return (
     <svg
       width="20"
@@ -13,6 +13,7 @@ const Find = () => {
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
+        className={className}
       />
     </svg>
   );

@@ -2,11 +2,49 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  body {
+    @apply bg-darker-bg;
+  }
+  /* width */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    border-radius: 5px;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-400;
+    border-radius: 5px;
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-[#1BA54B];
+  }
+}
+
 @layer components {
   .column-gap {
     column-gap: 24px;
   }
   .skeleton {
     @apply w-full animate-pulse list-none bg-gray-200;
+  }
+  .paggination-button {
+    @apply border-none bg-panel-darker-bg text-white cursor-pointer disabled:cursor-auto flex justify-center items-center;
+  }
+  .pagination-button-hover {
+    @apply hover:border-solid hover:border-2 hover:border-[#CDCDCD] rounded-lg;
+  }
+  .flex-3 {
+    flex: 3;
+  }
+  .flex-2 {
+    flex: 2;
   }
 }

@@ -4,18 +4,14 @@ interface SkeletonProps {
   direction?: "column" | "row";
 }
 
-export const Skeleton = ({
-  type,
-  count,
-  direction = "column",
-}: SkeletonProps) => {
+export const Skeleton = ({ type, count, direction = "row" }: SkeletonProps) => {
   return (
     <>
       {count > 1 ? (
         <ul
           className={
             direction === "column"
-              ? "flex flex-col gap-[12px] "
+              ? "flex flex-col gap-[12px]"
               : "banners-list w-full gap-[12px]"
           }
         >
@@ -23,11 +19,7 @@ export const Skeleton = ({
             return (
               <li
                 key={index}
-                className={
-                  type === "banner"
-                    ? "pt-[100%] relative skeleton"
-                    : "h-[80px] skeleton"
-                }
+                className={"h-[80px] skeleton bg-gray-600 rounded-lg"}
               ></li>
             );
           })}

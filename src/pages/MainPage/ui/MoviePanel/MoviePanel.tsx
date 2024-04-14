@@ -1,38 +1,70 @@
-import { useFetchAllMoviesQuery } from "@/entities/movies";
-import { Pagination } from "@/shared/ui/Pagination";
-import { MovieList } from "@/widgets/Movies";
 import { useEffect, useState } from "react";
+import { useAppSelector } from "@/app/store/store";
+import { useFetchMoviesQuery } from "@/entities/movies";
+import { PaginationWrapper } from "@/features/pagination";
+import { MovieList } from "@/widgets/Movies";
+import { SORT_MAP } from "@/features/filters";
 
-interface MoviePanelProps {}
+const TOTAL = 100;
+type SortType = "Отсутствует" | "По названию" | "По рейтингу" | "По году";
 
 export const MoviePanel = () => {
-  const [currentPage, setCurrentPage] = useState(1);
+  const keyword = useAppSelector((state) => state.search.keyword);
+  const filters = useAppSelector((state) => state.filters.filters);
+  const limit = useAppSelector((state) => Number(state.sort.viewCount));
+  const sort = useAppSelector((state) => state.sort.sort);
 
-  const { data, isLoading } = useFetchAllMoviesQuery({
-    limit: 12, //Должно приходить из редакса (панель фильтров)
+  // Пагинация
+  const [currentPage, setCurrentPage] = useState<number>(() => {
+    return getPageFromLocalStorage();
+  });
+  const sortValue = SORT_MAP[sort as SortType] || "";
+
+  const { data, isLoading } = useFetchMoviesQuery({
+    sortField: sortValue,
+    limit,
     page: currentPage,
+    ...filters,
+    query: keyword,
   });
 
-  const handleNextPage = () => {
-    setCurrentPage((prev) => prev + 1);
-  };
-  const handlePrevPage = () => {
-    setCurrentPage((prev) => prev - 1);
-  };
-  const handlePageClick = (page: number) => {
-    setCurrentPage(page);
-  };
+  useEffect(() => {
+    clearPageFromLocalStorage();
+  }, []);
+
+  useEffect(() => {
+    savePageToLocalStorage(currentPage);
+  }, [currentPage]);
 
   return (
     <section className="flex flex-col gap-12">
-      <MovieList data={data && data.docs} isLoading={isLoading} />
-      <Pagination
+      <PaginationWrapper
+        limit={limit}
+        siblings={1}
         currentPage={currentPage}
-        handleNextPage={handleNextPage}
-        handlePageClick={handlePageClick}
-        handlePrevPage={handlePrevPage}
-        totalPages={10} //тоже чето типо редакса (но пока хз)
-      />
+        setCurrentPage={setCurrentPage}
+        totalPages={TOTAL}
+        type="large"
+      >
+        {
+          <div className="flex flex-col gap-8">
+            <MovieList data={data && data.docs} isLoading={isLoading} />
+          </div>
+        }
+      </PaginationWrapper>
     </section>
   );
+};
+
+const savePageToLocalStorage = (page: number) => {
+  localStorage.setItem("currentPage", JSON.stringify(page));
+};
+
+const getPageFromLocalStorage = () => {
+  const storedPage = localStorage.getItem("currentPage");
+  return storedPage ? JSON.parse(storedPage) : 1;
+};
+
+const clearPageFromLocalStorage = () => {
+  localStorage.removeItem("currentPage");
 };

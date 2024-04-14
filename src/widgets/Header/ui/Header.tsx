@@ -1,21 +1,25 @@
-import { Button } from "@/shared/ui/Button";
-import { Input } from "@/shared/ui/Input";
-
-interface HeaderProps {}
+import { SearchPanel } from "@/features/search";
+import { Button } from "@/shared";
+import { useNavigate } from "react-router-dom";
 
 export const Header = () => {
-  //№ Сюда useDebounce
-  // input будет в стиле твича, со всеми плюшками и историей в локал сторедже
-  // думаю сюда ещё можно будет добавить глобальный стейт. мы через ртк делаем отсюда запрос к апи, ответ записывается в стор
-  // из стора достаем нужную инфу в MovieList
+  const navigate = useNavigate();
+
+  const onNavigate = () => {
+    navigate("/");
+  };
 
   return (
-    <header className="">
-      <nav className=" bg-slate-500 flex justify-center items-center px-36 py-2">
-        <div className="flex-1">Лого</div>
-        <Input />
-        <div className="flex-1 flex justify-end">
-          <Button>Аккаунт</Button>
+    <header className="bg-panel-darker-bg rounded-lg">
+      <nav className="flex justify-center lg:justify-between items-center px-36 max-lg:px-5 py-5 max-lg:gap-4">
+        <div className="max-lg:flex-0 cursor-pointer" onClick={onNavigate}>
+          <span className="text-white text-lg font-medium hover:text-primary">
+            Главная
+          </span>
+        </div>
+        <SearchPanel />
+        <div className="flex justify-end max-lg:hidden">
+          <Button className="invisible">Аккаунт</Button>
         </div>
       </nav>
     </header>

@@ -1,10 +1,16 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { MoviesApiResponse, ParamsType } from "../model/MovieApiTypes";
+import {
+  MoviesApiResponse,
+  MovieParamsType,
+  PostersApiResponse,
+  SeriesApiResponse,
+  MovieId,
+  ReviewParamsType,
+  ReviewApiResponse,
+} from "../model/MovieApiTypes";
 import { MovieIdApiResponse } from "../model/MovieTypes";
 
-// const BASE_URL = process.env.MOVIES_BASE_API_URL;
-// const API_KEY = process.env.MOVIES_API_KEY;
-// №Ключ и ссылка пока захардкожены - позже надо это исправить
+const X_API_KEY = process.env.REACT_APP_API_KEY;
 
 export const movieApi = createApi({
   reducerPath: "movieApi",
@@ -12,40 +18,104 @@ export const movieApi = createApi({
     baseUrl: "https://api.kinopoisk.dev/v1.4/",
     prepareHeaders: (headers) => {
       headers.set("Content-Type", "application/json");
-      headers.set("X-API-KEY", "WF76VQQ-HQB4P5G-JFJH8DF-CRKDP1M");
+      headers.set("X-API-KEY", X_API_KEY);
       return headers;
     },
   }),
   endpoints: (builder) => ({
-    fetchAllMovies: builder.query<MoviesApiResponse, ParamsType>({
+    fetchMovies: builder.query<MoviesApiResponse, MovieParamsType>({
       query: (params) => {
-        const { page = 1, limit = 10 } = params;
+        const { query, sortField, ...otherParams } = params;
+        const filteredOtherParams = Object.entries(otherParams)
+          .filter(([_, value]) => value !== "")
+          .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
 
+        if (query != "") {
+          return {
+            url: `movie/search`,
+            params: {
+              query,
+              ...filteredOtherParams,
+            },
+          };
+        } else {
+          if (sortField) {
+            return {
+              url: `movie`,
+              params: {
+                sortField,
+                sortType: 1,
+                ...filteredOtherParams,
+              },
+            };
+          } else {
+            return {
+              url: `movie`,
+              params: {
+                ...filteredOtherParams,
+              },
+            };
+          }
+        }
+      },
+    }),
+    fetchMovieById: builder.query<MovieIdApiResponse, MovieId>({
+      query: (params) => {
+        const { id } = params;
         return {
-          url: `movie`,
+          url: `movie/${id}`,
+        };
+      },
+    }),
+    fetchPosters: builder.query<PostersApiResponse, MovieId>({
+      query: (params) => {
+        return {
+          url: `image`,
           params: {
-            page,
-            limit,
+            ...params,
           },
         };
       },
-      // Сохранение результатов в стор (досмотреть видос)
-      //   async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
-      //     const result = await queryFulfilled;
-      //     const data = result.data;
-
-      //     dispatch(setNews(data.news));
-      //   },
     }),
-    fetchMoviesById: builder.query<MovieIdApiResponse, null>({
+    fetchSeasonsAndSeries: builder.query<SeriesApiResponse, MovieId>({
       query: (params) => {
-        // const { id } = params;
+        const { movieId } = params;
         return {
-          url: `movie/300`,
+          url: `season`,
+          params: {
+            movieId,
+          },
+        };
+      },
+    }),
+    fetchReview: builder.query<ReviewApiResponse, ReviewParamsType>({
+      query: (params) => {
+        return {
+          url: `review`,
+          params: {
+            ...params,
+          },
+        };
+      },
+    }),
+    fetchSearch: builder.query<MoviesApiResponse, MovieParamsType>({
+      query: (params) => {
+        return {
+          url: `movie/search`,
+          params: {
+            ...params,
+          },
         };
       },
     }),
   }),
 });
 
-export const { useFetchAllMoviesQuery } = movieApi;
+export const {
+  useFetchMoviesQuery,
+  useFetchMovieByIdQuery,
+  useFetchPostersQuery,
+  useFetchSeasonsAndSeriesQuery,
+  useFetchReviewQuery,
+  useFetchSearchQuery,
+} = movieApi;

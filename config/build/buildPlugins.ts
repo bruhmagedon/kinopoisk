@@ -2,6 +2,7 @@ import HtmlWebpackPlugin from "html-webpack-plugin";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import { Configuration } from "webpack";
 import { BuildOptions } from "./types/types";
+import Dotenv from "dotenv-webpack";
 import webpack from "webpack";
 
 export function buildPlugins({
@@ -14,6 +15,9 @@ export function buildPlugins({
   const plugins: Configuration["plugins"] = [
     new HtmlWebpackPlugin({
       template: paths.html,
+    }),
+    new Dotenv({
+      systemvars: true,
     }),
   ];
 
